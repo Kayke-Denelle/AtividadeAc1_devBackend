@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.projetoescola.models.Curso;
 import com.example.projetoescola.repositories.CursoRepository;
 
-import jakarta.persistence.TypedQuery;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
