@@ -7,45 +7,68 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.example.projetoescola.models.Aluno;
+import com.example.projetoescola.models.CategoriaCurso;
 import com.example.projetoescola.models.Curso;
-import com.example.projetoescola.repositories.AlunoRepository;
+import com.example.projetoescola.models.Pessoa;
+import com.example.projetoescola.repositories.CategoriaCursoRepository;
 import com.example.projetoescola.repositories.CursoRepository;
+import com.example.projetoescola.repositories.PessoaRepository;
 
 @SpringBootApplication
 public class ProjetoescolaApplication {
 
-    @Bean
-    @Transactional
-    public CommandLineRunner init(
-        @Autowired CursoRepository cursoRepository,
-        @Autowired AlunoRepository alunoRepository
-    ) {
-        return args -> {
-            // Criando cursos
-            Curso curso1 = cursoRepository.salvar( new Curso(null, "Ciência da Computação"));
-            Curso curso2 = cursoRepository.salvar (new Curso(null, "Engenharia de Software"));
+	@Bean
+	public CommandLineRunner init(
+			@Autowired CursoRepository cursoRepository,
+			@Autowired CategoriaCursoRepository categoriaRepository,
+			@Autowired PessoaRepository pessoaRepository) {
+		return args -> {
+			System.out.println("---- Inserindo Cursos ----");
+			cursoRepository.save(
+					new Curso(null, "teste", 2000));
+			cursoRepository.save(
+					new Curso(null, "teste2", 2050));
 
+			System.out.println("---- Cursos por Nome ----");
+			List<Curso> cursos = cursoRepository.findByNome("teste");
+			cursos.forEach(System.out::println);
 
-            // Criando alunos e associando aos cursos
-            Aluno aluno1 = alunoRepository.salvar(new Aluno(null, "Kayke", 2024, curso1));
-            Aluno aluno2 = alunoRepository.salvar( new Aluno(null, "João", 2023, curso2));
+			System.out.println("---- Cursos por Nome LIKE ----");
+			cursos = cursoRepository.findByNomeLike("t%");
+			cursos.forEach(System.out::println);
 
-            // Listando cursos
-            System.out.println("-------------- Listando Cursos ----------------");
-            List<Curso> listaCursos = cursoRepository.obterTodos();
-                listaCursos.forEach(System.out::println);
+			System.out.println("---- Listando Cursos ----");
+			List<Curso> listaCursos = cursoRepository.findAll();
+			listaCursos.forEach(System.out::println);
 
-            // Listando alunos
-            System.out.println("-------------- Listando Alunos ----------------");
-            List<Aluno> listaAlunos = alunoRepository.obterTodos();
-            listaAlunos.forEach(System.out::println);
-        };
-    }
+			System.out.println("---- Insere Categoria ----");
+			CategoriaCurso categ = categoriaRepository.save(
+					new CategoriaCurso(null, "Informática"));
 
-    public static void main(String[] args) {
-        SpringApplication.run(ProjetoescolaApplication.class, args);
-    }
+			System.out.println("---- Vincular Curso na categoria ----");
+			Curso c1 = cursoRepository.findAll().get(0);
+			c1.setCategoriaCurso(categ);
+			cursoRepository.save(c1);
+
+			System.out.println("*** Criar pessoa ***");
+			Pessoa pessoa = pessoaRepository.salvar(
+					new Pessoa(null, "João"));
+
+			System.out.println("*** Criar pessoa ***");
+			Pessoa pessoa2 = pessoaRepository.salvar(
+					new Pessoa(null, "maria"));
+
+			System.out.println("*** Vincular pessoa ao curso ***");
+			c1.addPessoa(pessoa);
+			c1.addPessoa(pessoa2);
+
+			cursoRepository.save(c1);
+		};
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(ProjetoescolaApplication.class, args);
+	}
+
 }
